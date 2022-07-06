@@ -1,0 +1,63 @@
+from functools import wraps
+
+
+def benchmark(func):
+    """
+    Outputs the execution time of the decorated function.
+    """
+    import time
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        timer_start = time.perf_counter()
+        print_benchmark = kwargs.get('print_benchmark')
+        benchmark_name = kwargs.get('benchmark_name')
+        kwargs.pop('print_benchmark', None)
+        kwargs.pop('benchmark_name', None)
+        result = func(*args, **kwargs)
+        timer_stop = time.perf_counter()
+        if print_benchmark:
+            print(f'{benchmark_name}: execution time = '
+                  f'{round((timer_stop - timer_start) * 1e3, 2)} ms')
+        return result
+    return wrapper
+
+
+def singleton(class_):
+    """
+    Implements the singleton pattern
+    """
+    singleton.instances = {}
+
+    @wraps(class_)
+    def wrapper(*args, **kwargs):
+        if class_.__name__ not in singleton.instances:
+            singleton.instances[class_.__name__] = class_(*args, **kwargs)
+        return singleton.instances[class_.__name__]
+
+    return wrapper
+
+
+class SingletonReseter:
+    """
+    Parent class for temporary stopping singleton behaviour
+    """
+    def reset_singleton(self) -> None:
+        """
+        Removes an instance of the class from the singleton decorator cache.
+        The next created object will be initiated again.
+        """
+        self_name = self.__class__.__name__
+        try:
+            # noinspection PyUnresolvedReferences
+            singleton.instances.pop(self_name)
+        except KeyError:
+            pass
+
+
+def static_vars(**kwargs):
+    def wrapper(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+    return wrapper
