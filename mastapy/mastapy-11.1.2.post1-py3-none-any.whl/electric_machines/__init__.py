@@ -1,0 +1,79 @@
+﻿'''__init__.py'''
+
+
+from mastapy._internal.dummy_base_class_importer import _DummyBaseClassImport
+
+
+with _DummyBaseClassImport():
+    from ._1192 import AbstractStator
+    from ._1193 import AbstractToothAndSlot
+    from ._1194 import BHCurveExtrapolationMethod
+    from ._1195 import CADElectricMachineDetail
+    from ._1196 import CADRotor
+    from ._1197 import CADStator
+    from ._1198 import CADToothAndSlot
+    from ._1199 import Coil
+    from ._1200 import CoilPositionInSlot
+    from ._1201 import CoolingDuctLayerSpecification
+    from ._1202 import DoubleLayerWindingSlotPositions
+    from ._1203 import DynamicForceResults
+    from ._1204 import Eccentricity
+    from ._1205 import ElectricMachineControlStrategy
+    from ._1206 import ElectricMachineDetail
+    from ._1207 import ElectricMachineDetailInitialInformation
+    from ._1208 import ElectricMachineDQModel
+    from ._1209 import ElectricMachineEfficiencyMapSettings
+    from ._1210 import ElectricMachineMeshingOptions
+    from ._1211 import ElectricMachineResults
+    from ._1212 import ElectricMachineResultsForLineToLine
+    from ._1213 import ElectricMachineResultsForOpenCircuitAndOnLoad
+    from ._1214 import ElectricMachineResultsForPhase
+    from ._1215 import ElectricMachineResultsForPhaseAtTimeStep
+    from ._1216 import ElectricMachineResultsForStatorToothAtTimeStep
+    from ._1217 import ElectricMachineResultsLineToLineAtTimeStep
+    from ._1218 import ElectricMachineResultsTimeStep
+    from ._1219 import ElectricMachineResultsTimeStepAtLocation
+    from ._1220 import ElectricMachineSetup
+    from ._1221 import ElectricMachineType
+    from ._1222 import FluxBarrierOrWeb
+    from ._1223 import FluxBarrierStyle
+    from ._1224 import HarmonicLoadDataControlExcitationOptionForElectricMachineMode
+    from ._1225 import InteriorPermanentMagnetAndSynchronousReluctanceRotor
+    from ._1226 import InteriorPermanentMagnetMachine
+    from ._1227 import IronLossCoefficients
+    from ._1228 import LeadingOrLagging
+    from ._1229 import LinearDQModel
+    from ._1230 import Magnet
+    from ._1231 import MagnetConfiguration
+    from ._1232 import MagnetMaterial
+    from ._1233 import MagnetMaterialDatabase
+    from ._1234 import MotoringOrGenerating
+    from ._1235 import MotorRotorSideFaceDetail
+    from ._1236 import NonCADElectricMachineDetail
+    from ._1237 import NonLinearDQModel
+    from ._1238 import NonLinearDQModelSettings
+    from ._1239 import NotchShape
+    from ._1240 import NotchSpecification
+    from ._1241 import OnLoadElectricMachineResults
+    from ._1242 import OpenCircuitElectricMachineResults
+    from ._1243 import PermanentMagnetAssistedSynchronousReluctanceMachine
+    from ._1244 import PermanentMagnetRotor
+    from ._1245 import Rotor
+    from ._1246 import RotorInternalLayerSpecification
+    from ._1247 import RotorType
+    from ._1248 import SingleOrDoubleLayerWindings
+    from ._1249 import Stator
+    from ._1250 import StatorRotorMaterial
+    from ._1251 import StatorRotorMaterialDatabase
+    from ._1252 import SurfacePermanentMagnetMachine
+    from ._1253 import SurfacePermanentMagnetRotor
+    from ._1254 import SynchronousReluctanceMachine
+    from ._1255 import Temperatures
+    from ._1256 import ToothAndSlot
+    from ._1257 import ToothSlotStyle
+    from ._1258 import UShapedLayerSpecification
+    from ._1259 import VShapedMagnetLayerSpecification
+    from ._1260 import WindingConnection
+    from ._1261 import WindingMaterial
+    from ._1262 import WindingMaterialDatabase
+    from ._1263 import Windings
