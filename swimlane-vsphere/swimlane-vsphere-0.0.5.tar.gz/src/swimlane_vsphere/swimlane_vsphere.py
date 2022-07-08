@@ -1,0 +1,2 @@
+class SwimlaneVsphere:
+    pass
