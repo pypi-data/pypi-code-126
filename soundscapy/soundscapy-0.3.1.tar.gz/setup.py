@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['soundscapy', 'soundscapy.test']
+
+package_data = \
+{'': ['*'],
+ 'soundscapy.test': ['test_DB/*',
+                     'test_DB/OFF_LocationA1_FULL_2020-12-31/OFF_LocationA1_BIN_2020-12-31/LocationA1_SpectrumData/FFT_Average/*',
+                     'test_DB/OFF_LocationA1_FULL_2020-12-31/OFF_LocationA1_BIN_2020-12-31/LocationA1_WAV/*',
+                     'test_DB/OFF_LocationA2_FULL_2021-01-01/OFF_LocationA2_BIN_2021-01-01/LocationA2_WAV/*',
+                     'test_DB/OFF_LocationB1_FULL_2021-01-13/OFF_LocationB1_BIN_2021-01-13/LocationB1_WAV/*']}
+
+install_requires = \
+['jupyter>=1.0.0,<2.0.0',
+ 'matplotlib>=3.5.2,<4.0.0',
+ 'openpyxl>=3.0.10,<4.0.0',
+ 'pandas-flavor>=0.3.0,<0.4.0',
+ 'pandas>=1.4.3,<2.0.0',
+ 'pyjanitor>=0.23.1,<0.24.0',
+ 'seaborn>=0.11.2,<0.12.0']
+
+setup_kwargs = {
+    'name': 'soundscapy',
+    'version': '0.3.1',
+    'description': 'A python library for analysing and visualising soundscape assessments.',
+    'long_description': '# Soundscapy\n[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MitchellAcoustics/Soundscapy/main?labpath=examples%2FHowToAnalyseAndRepresentSoundscapes.ipynb) \n\nA python library for analysing and visualising soundscape assessments. \n\n**Disclaimer:** This module is still heavily in development, and might break what you\'re working on. It will also likely require a decent amount of troubleshooting at this stage. I promise bug fixes and cleaning up is coming!\n\n## Installation\n\nThe package is still under development, but can be installed with pip:\n\n```\npip install soundscapy\n```\n\n## Examples\n\nAn example notebook which reproduces the figures used in our recent paper "How to analyse and represent quantitative soundscape data" is provided in the `examples` folder.\n\n## Citation\n\nIf you are using Soundscapy in your research, please help our scientific visibility by citing our work! Please include a citation to our accompanying paper:\n\nMitchell, A., Aletta, F., & Kang, J. (2022). How to analyse and represent quantitative soundscape data. *JASA Express Letters, 2*, 37201. [https://doi.org/10.1121/10.0009794](https://doi.org/10.1121/10.0009794)\n\n\n<!---\nBibtex:\n```\n@Article{Mitchell2022How,\n  author         = {Mitchell, Andrew and Aletta, Francesco and Kang, Jian},\n  journal        = {JASA Express Letters},\n  title          = {How to analyse and represent quantitative soundscape data},\n  year           = {2022},\n  number         = {3},\n  pages          = {037201},\n  volume         = {2},\n  doi            = {10.1121/10.0009794},\n  eprint         = {https://doi.org/10.1121/10.0009794},\n}\n\n```\n--->\n\n## Development Plans\n\nAs noted, this package is in heavy development to make it more useable, more stable, and to add features and improvements. At this stage it is mostly limited to doing basic quality checks of soundscape survey data and creating the soundscape distribution plots. Some planned improvements are:\n\n * Simplify the plotting options\n * Possibly improve how the plots and data are handled - a more OOP approach would be good.\n * Add appropriate tests and documentation.\n * Bug fixes, particularly around setting color palettes.\n\nLarge planned feature additions are:\n\n * Add better methods for cleaning datasets, including robust outlier exclusion and imputation.\n * Add handling of .wav files.\n * Integrate environmental acoustic and psychoacoustic batch processing. This will involve using existing packages (e.g. MoSQito, python-acoustics) to do the metric calculations, but adding useful functionality for processing many files at once, tieing them to a specific survey response, and implementing a configuration file for maintaining consistent analysis settings.\n * Integrate the predictive modelling results from the SSID team\'s research to enable a single pipelined from recording -> psychoacoustics -> predicted soundscape perception (this is very much a pie-in-the-sky future plan, which may not be possible).\n\n### Contributing\n\nIf you would like to contribute or if you have any bugs you have found while using `Soundscapy\', please feel free to get in touch or submit an issue or pull request!\n',
+    'author': 'Andrew Mitchell',
+    'author_email': 'andrew.mitchell.18@ucl.ac.uk',
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': 'https://github.com/MitchellAcoustics/Soundscapy',
+    'packages': packages,
+    'package_data': package_data,
+    'install_requires': install_requires,
+    'python_requires': '>=3.8,<4.0',
+}
+
+
+setup(**setup_kwargs)
