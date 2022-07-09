@@ -1,0 +1,21 @@
+from setuptools import find_packages, setup
+
+descripcion = r"C:\Users\Estuardo\OneDrive\Documents\Proyectos\MTLibrary2.0\README.md"
+with open(descripcion, "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+setup(
+    name='mtlibrary',
+    version='2.0.0',
+    description='MTLibrary es una libreria en español desarrollada para resolver problemas matemáticos y así ayudar a esos programadores con bajos conocimientos con librerias en inglés.',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author='Estuardo Ramírez',
+    author_email='estuardo@estuardodev.com',
+    url='https://github.com/estuardodev/MTLibrary',
+    download_url='https://github.com/estuardodev/MTLibrary.git',
+    keywords=['estuardodev', 'mtlibrary', 'matematicas', 'math'],
+    packages=find_packages(),
+    py_modules=['mtlibrary'],
+    requires_python = ">=3.9"
+)
