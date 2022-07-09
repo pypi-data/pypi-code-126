@@ -1,0 +1,2 @@
+class TetherException(Exception):
+    pass
