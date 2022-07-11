@@ -1,0 +1,1 @@
+from relatable.lib import make_relational_schema
