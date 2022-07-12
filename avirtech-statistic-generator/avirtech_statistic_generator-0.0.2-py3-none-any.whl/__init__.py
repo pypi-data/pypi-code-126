@@ -1,0 +1,1 @@
+from .avirtech_statistic_generator import avirtech_statistic_generator
