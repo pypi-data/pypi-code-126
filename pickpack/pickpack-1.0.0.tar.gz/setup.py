@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+package_dir = \
+{'': 'src'}
+
+packages = \
+['pickpack']
+
+package_data = \
+{'': ['*']}
+
+install_requires = \
+['anytree>=2.8,<3.0', 'pytest>=6.2,<7.0']
+
+extras_require = \
+{':python_version >= "3.6" and python_version < "3.7"': ['dataclasses>=0.8,<0.9'],
+ ':sys_platform == "win32"': ['windows-curses>=2.2.0,<3.0.0']}
+
+setup_kwargs = {
+    'name': 'pickpack',
+    'version': '1.0.0',
+    'description': "Based on wong2's pick, pickpack is a terminal GUI which allows you to pick one or more options from a tree structure",
+    'long_description': '# pickpack\n\n[![ci](https://github.com/anafvana/pickpack/actions/workflows/ci.yml/badge.svg)](https://github.com/anafvana/pickpack/actions/workflows/ci.yml)\n\n**pickpack** is a small python library based on [wong2\'s pick](https://github.com/wong2/pick) which allows you to create a curses-based interactive selection tree in the terminal.\n\n![Demo](https://github.com/anafvana/pick/raw/master/example/basic-tree.gif)\n\nIt was made with installation processes in mind, so that a user can select a parent node and get all children elements included. Different configurations allow for different outputs.\n\n## Installation\n\n    $ pip install pickpack\n\n## Options\n\n- `options`: a RenderTree (anytree) or a list of options (if using list, `options_map_func` MUST be included)\n- `title`: (optional) a title displayed above the options list\n- `root_name`: (optional) name of root ("select all") node; defaults to root-node\'s value\n- `multiselect`: (optional) if true, it is possible to select multiple values by hitting SPACE; defaults to `False`\n- `singleselect_output_include_children`: (optional) if true, output in singleselect will include all children of the selected node, as well as the node itself; defaults to `False`\n- `output_leaves_only`: (optional) if true, only leaf (childless) nodes will be returned; **for singleselect mode, `singleselect_output_include_children` MUST be True**; defaults to `False`\n- `output_format`: (optional) allows for customising output format. \'nodeindex\' = `[(Node(\'name\'), index)]`; \'nameindex\' = `[(\'name\', index)]`; \'nodeonly\' = `[Node(\'name\')]`; \'nameonly\' = `[\'name\']`; default is \'nodeindex\'\n- `indicator`: (optional) custom the selection indicator\n- `indicator_parentheses`: (optional) include/remove parentheses around selection indicator; defaults to `True`\n- `default_index`: (optional) defines at which line the indicator will be placed when the program is started; default is `0` (first line)\n- `options_map_func`: (optional for multiselect) a mapping function to pass each option through before displaying. Must return `Node`\n\n## Usage\n\n**pickpack** can be used by creating a tree and passing it into pickpack:\n\n    from anytree import Node, RenderTree\n    from pickpack import pickpack\n\n    title = \'Please choose one: \'\n\n    c1 = Node(\'child1\')\n    c2 = Node(\'child2\')\n    p1 = Node(\'parent\', children=[c1,c2])\n\n    options = RenderTree(p1)\n    option, index = pickpack(options, title)\n    print(option, index)\n\n**outputs**:\n\n    Node(\'/parent/child1\', index=1)\n    1\n\n**pickpack** multiselect example returning node-name and index:\n\n    from anytree import Node, RenderTree\n    from pickpack import pickpack\n\n    title = \'Please choose one: \'\n\n    c1 = Node(\'child1\')\n    c2 = Node(\'child2\')\n    p1 = Node(\'parent\', children=[c1,c2])\n\n    options = RenderTree(p1)\n    option, index = pickpack(options, title, multiselect=True, min_selection_count=1, output_format=\'nameindex\')\n    print(option, index)\n\n**outputs**::\n\n    [(\'child1\', 1), (\'child2\', 2)]\n\n### Register custom handlers\n\nTo register custom handlers for specific keyboard keypresses, you can use the `register_custom_handler` property:\n\n    from anytree import Node, RenderTree\n    from pickpack import PickPacker\n\n    title = \'Please choose one: \'\n    c1 = Node(\'child1\')\n    c2 = Node(\'child2\')\n    p1 = Node(\'parent\', children=[c1,c2])\n    options = RenderTree(p1)\n\n    picker = PickPacker(options, title)\n    def go_back(picker):\n         return None, -1\n    picker.register_custom_handler(ord(\'h\'),  go_back)\n    option, index = picker.start()\n\n- the custom handler will be called with the `picker` instance as its parameter.\n- the custom handler should either return a two-element `tuple` or `None`.\n- if `None` is returned, the picker would continue to run; otherwise the picker will stop and return the tuple.\n\n### Options Map Function\n\nIf your options are not a `RenderTree`, you can pass in a mapping function through which each option will be run. [^1]\n\n[^1]: It MAY be also possible to use the `options_map_function` to customise how each option is displayed (as was the case with the original `options_map_function` from [wong2\'s pick](https://github.com/wong2/pick)). However, this behaviour has not been thoroughly tested. Feel free to submit an issue if you try it out.\n\nThe function must take in elements of the type you passed into the options (`Node` if you passed a `RenderTree`, `T` if you passed a `list[T]`) and return a `Node`.\n\nYou may also store any additional information as a custom property within the node.\n\n**pickpack** options map function example:\n\n    from anytree import Node, RenderTree\n    from pickpack import pickpack\n\n    title = \'Please choose an option: \'\n    options = [\n        {\'label\': \'option1\', \'abbreviation\': \'op1\'},\n        {\'label\': \'option2\', \'abbreviation\': \'op2\'},\n        {\'label\': \'option3\', \'abbreviation\': \'op3\'}\n    ]\n\n    def get_node(option):\n        return Node(option.get(\'label\'), abbreviation=option.get(\'abbreviation\'))\n\n    picker = PickPacker(options, title, indicator=\'*\', options_map_func=get_node, output_format=\'nameindex\')\n\n**displays**:\n\n    Please choose an option:\n\n    (*) Select all\n    ( )    └── option1\n    ( )    └── option2\n    ( )    └── option3\n\n**outputs**:\n\n    >>> ({ \'label\': \'option1\' }, 0)\n\n#### Map function for nested lists\n\n**pickpack** options map function example for lists with **nesting**:\n\n    from anytree import Node, RenderTree\n    from pickpack import pickpack\n\n    title = \'Please choose an option: \'\n    options = [\n        {\'label\': \'option1\', \'abbreviation\': \'op1\', \'children\':\n            [{\'label\': \'option1.1\', \'abbreviation\': \'op1.1\',}]\n        },\n        {\'label\': \'option2\', \'abbreviation\': \'op2\'},\n        {\'label\': \'option3\', \'abbreviation\': \'op3\'}\n    ]\n\n    def get_node(option):\n        children = option.get(\'children\')\n        if children is not None:\n            children_list: list[Node] = []\n            for child in children:\n                children_list.append(get_nodes(child))\n            return Node(option.get(\'label\'), children=children_list, abbreviation=option.get(\'abbreviation\'))\n        else:\n            return Node(option.get(\'label\'), children=None, abbreviation=option.get(\'abbreviation\'))\n\n    picker = PickPacker(options, title, indicator=\'*\', options_map_func=get_node, output_format=\'nameindex\')\n\n**displays**:\n\n    Please choose an option:\n\n    (*) Select all\n    ( )    └── option1\n    ( )           └── option1.1\n    ( )    └── option2\n    ( )    └── option3\n',
+    'author': 'Ana',
+    'author_email': 'anafvana@gmail.com',
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': 'https://github.com/anafvana/pickpack',
+    'package_dir': package_dir,
+    'packages': packages,
+    'package_data': package_data,
+    'install_requires': install_requires,
+    'extras_require': extras_require,
+    'python_requires': '>=3.9',
+}
+
+
+setup(**setup_kwargs)
