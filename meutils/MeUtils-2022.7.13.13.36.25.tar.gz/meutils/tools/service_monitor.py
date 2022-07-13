@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Project      : MeUtils.
+# @File         : __init__.py
+# @Time         : 2021/1/31 10:20 下午
+# @Author       : yuanjie
+# @Email        : meutils@qq.com
+# @Software     : PyCharm
+# @Description  : python meutils/clis/__init__.py
+
+from meutils.pipe import *
+from itertools import zip_longest
+
+
+class Item(BaseModel):
+    service_name = 'name'
+    url = ""
+    get_data: list = []
+    post_data: list = []
+    keywords: list = []  # 判断词
+
+
+class Items(BaseConfig):
+    item_list: List[Item]
+
+
+def monitor_task(item: Item):
+    method = 'post' if item.post_data else 'get'
+    flags = []
+    for get_data, post_data in zip_longest(item.get_data, item.post_data):
+        r = requests.request(method, url=item.url, params=get_data, json=post_data, timeout=3)  # todo: 增加重试逻辑
+        flag = any(key in r.text for key in item.keywords)
+        flags.append(flag)
+
+    return {item.service_name: any(flags)}
+
+
+def main(filename):
+    items = Items.parse_yaml(filename)
+
+    result = []
+    for item in items.item_list:
+        result.append(monitor_task(item))
+    return result
+
+
+if __name__ == '__main__':
+    FILE_NAME = 'x.yml'
+    main(FILE_NAME)
