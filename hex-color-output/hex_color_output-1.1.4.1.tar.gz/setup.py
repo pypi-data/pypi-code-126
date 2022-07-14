@@ -1,0 +1,21 @@
+from setuptools import setup, find_packages
+from pathlib import Path
+
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "readme.md").read_text()
+
+setup(
+    name='hex_color_output',
+    version='1.1.4.1',
+    license='MIT',
+    author="Cownex",
+    description="Output Terminal Color with HexCodes!",
+    author_email='contact@cownex.de',
+    packages=find_packages('source'),
+    package_dir={'': 'source'},
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/Cownex/HexColorOutput',
+    keywords='python hex color terminal output color-output',
+)
