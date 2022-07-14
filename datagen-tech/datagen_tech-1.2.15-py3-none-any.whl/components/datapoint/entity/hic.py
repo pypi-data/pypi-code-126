@@ -1,0 +1,16 @@
+import os
+
+from datagen import modalities
+from datagen.components.datapoint.entity import base
+
+
+class DataPoint(base.DataPoint):
+    @modalities.textual_modality
+    def actor_metadata(self) -> modalities.TextualModality:
+        return modalities.TextualModality(factory_name="actors", file_name="actor_metadata.json")
+
+    @modalities.textual_modality
+    def keypoints(self) -> modalities.TextualModality:
+        return modalities.TextualModality(
+            factory_name="keypoints", file_name=os.path.join("key_points", "all_key_points.json")
+        )
