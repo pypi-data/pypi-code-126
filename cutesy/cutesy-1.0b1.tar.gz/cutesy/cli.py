@@ -1,0 +1,206 @@
+"""Expose Cutesy via CLI."""
+
+# Standard Library
+from pathlib import Path
+
+# Third Party
+import click
+
+# Current App
+from . import DoctypeError, HTMLLinter, PreprocessingError
+from .preprocessors import django
+
+
+@click.command()
+@click.option(
+    "--code",
+    is_flag=True,
+    help="Process the code passed in as a string, instead of searching PATTERN.",
+)
+@click.option("--fix", is_flag=True, help="Automatically fix problems when possible.")
+@click.option(
+    "--return-zero",
+    is_flag=True,
+    help="Always exit with 0, even if unfixed problems remain.",
+)
+@click.option(
+    "--quiet",
+    is_flag=True,
+    help="Don't print individual problems.",
+)
+@click.option(
+    "--check-doctype",
+    is_flag=True,
+    help="Process files with non-HTML5 doctypes. Without this flag, non-HTML5 files are skipped.",
+)
+@click.option(
+    "--preprocessor",
+    metavar="<str>",
+    help="Use a preprocessor for dynamic HTML files. Try 'django'.",
+)
+@click.version_option()
+@click.argument("pattern")
+def main(code, fix, return_zero, quiet, check_doctype, preprocessor, pattern):
+    """Cutesy 🥰
+
+    Lint (and optionally, fix & format) all files matching PATTERN.
+    """  # noqa: D209, D400
+    preprocessor = {
+        None: None,
+        "django": django.Preprocessor(),
+    }[preprocessor]
+
+    linter = HTMLLinter(fix=fix, check_doctype=check_doctype, preprocessor=preprocessor)
+    errors_by_file = {}
+    num_errors = 0
+    num_files_modified = 0
+    num_files_failed = 0
+
+    is_in_modification_block = False  # For printing extra newlines
+
+    html_paths_and_strings = []
+    if code:
+        html_paths_and_strings = [(None, pattern)]
+    else:
+        for path in Path(".").glob(pattern):
+            with open(path, mode="r") as html_file:
+                html = html_file.read()
+                html_paths_and_strings.append((path, html))
+
+    result = None  # For passed-in-code mode
+    for path, html in html_paths_and_strings:
+        is_preprocessing_error = False  # These are "fatal"
+
+        try:
+            result, errors = linter.lint(html)
+        except DoctypeError:
+            # Ignore this file due to non-HTML5 doctype, when this feature has
+            # been enabled
+            continue
+        except PreprocessingError as preprocessing_error:
+            is_preprocessing_error = True
+            num_files_failed += 1
+            errors = preprocessing_error.errors
+        else:
+            if fix and html != result and path is not None:
+                with open(path, mode="w") as html_file:
+                    html_file.write(result)
+                    is_in_modification_block = True
+                    if not quiet:
+                        click.echo(f"Fixed {path}")
+                num_files_modified += 1
+
+        if errors:
+            errors_by_file[str(path)] = errors
+            num_errors += len(errors)
+
+            if is_in_modification_block:
+                # Extra newline for spacing
+                if not quiet:
+                    click.echo()
+                is_in_modification_block = False
+
+            if not quiet:
+                indentation = ""
+                if path is not None:
+                    indentation = "  "
+                    click.echo(f"\033[1m\033[4m{click.format_filename(path)}\033[0m")
+
+                if is_preprocessing_error:
+                    warning_part = "\033[91m\033[1mFATAL\033[0m  "
+                else:
+                    warning_part = ""
+
+                for error in errors:
+                    rule = error.rule
+
+                    len_error_line = len(str(error.line))
+                    location_width = 4 + max((len_error_line, 3))
+                    location_display = f"{error.line}:{error.column}".ljust(location_width)
+
+                    message = rule.message
+                    if error.replacements:
+                        message = message.format(**error.replacements)
+                    click.echo(
+                        f"{indentation}{warning_part}{location_display} "
+                        + f"{error.rule.code.ljust(4)} {message}",
+                    )
+
+                click.echo("")
+
+    # Print closing remarks
+
+    if code:
+        if num_errors:
+            maybe_s = "" if num_errors == 1 else "s"
+            if fix:
+                click.echo(f"🔪 \033[91m\033[1m{num_errors} pro̵ble̴m{maybe_s} lef̴̥͆t\033[0m")
+            else:
+                click.echo(f"🔪 \033[91m\033[1m{num_errors} proble̴m{maybe_s} fo̵͖̔u̷nd\033[0m")
+
+            if return_zero:
+                exit(0)
+            exit(1)
+
+        if fix:
+            if result is not None:
+                click.echo(result)
+                click.echo()
+
+            if result == pattern:
+                click.echo("\033[1mNothing to fix\033[0m 🥰")
+            else:
+                click.echo("\033[1mAll done\033[0m 🥰")
+        else:
+            click.echo("\033[1mNo problems found\033[0m 🥰")
+
+        exit(0)
+
+    if errors_by_file:
+        maybe_s_1 = "" if num_errors == 1 else "s"
+        maybe_s_2 = "" if len(errors_by_file) == 1 else "s"
+
+        if fix:
+            if num_files_modified:
+                if is_in_modification_block:
+                    # Extra newline for spacing
+                    click.echo()
+
+                maybe_s_3 = "" if num_files_modified == 1 else "s"
+                click.echo(
+                    f"\033[1mFixed {num_files_modified} file{maybe_s_3}, "
+                    + f"\033[91m\033[1m{num_errors} problḙ̴͈͝m{maybe_s_1} le̴ft\033[0m in "
+                    + f"{len(errors_by_file)} file{maybe_s_2}",
+                )
+            else:
+                click.echo(
+                    f"🔪 \033[91m\033[1m{num_errors} pro̵ble̴m{maybe_s_1} lef̴̥͆t\033[0m in "
+                    + f"{len(errors_by_file)} file{maybe_s_2}",
+                )
+
+        else:
+            click.echo(
+                f"🔪 \033[91m\033[1m{num_errors} proble̴m{maybe_s_1}\033[0m fo̵͖̔u̷nd in "
+                + f"{len(errors_by_file)} file{maybe_s_2}",
+            )
+
+        if return_zero:
+            exit(0)
+        exit(1)
+
+    if fix:
+        if num_files_modified:
+            if is_in_modification_block:
+                click.echo()
+
+            maybe_s = "" if num_files_modified == 1 else "s"
+            click.echo(
+                f"\033[1mFixed {num_files_modified} file{maybe_s}, no problems left\033[0m 🥰",
+            )
+        else:
+            click.echo("\033[1mNothing to fix\033[0m 🥰")
+
+    else:
+        click.echo("\033[1mNo problems found\033[0m 🥰")
+
+    exit(0)
